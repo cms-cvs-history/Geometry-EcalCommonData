@@ -5,7 +5,7 @@
  <File name="Geometry/CMSCommonData/data/rotations.xml"            url="."/>
  <File name="Geometry/EcalCommonData/data/ecal_MTCC.xml"           url="."/>
  <File name="Geometry/CMSCommonData/data/cms.xml"                  url="."/>
- <File name="Geometry/CMSCommonData/data/ecalsens_MTCC.xml"        url="."/>
+ <File name="Geometry/EcalSimData/data/ecalsens_MTCC.xml"          url="."/>
  <File name="Geometry/HcalSimData/data/CaloUtil.xml"               url="."/>
  <File name="Geometry/EcalSimData/data/EcalProdCuts.xml"           url="."/>
 </Include>
