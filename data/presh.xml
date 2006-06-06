@@ -1,6 +1,7 @@
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL http://cern.ch/liendl/DDLSchema.xsd">
-	
-<ConstantsSection label="preshower">
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="presh.xml" eval="true">
   <Constant name="ECAL_Z" value="314.4*cm"/>
   <Constant name="PRESH_Z" value="295.7*cm"/>
   <Constant name="PRE_ETA_MIN" value="1.653"/>
@@ -21,7 +22,6 @@
   <Constant name="elec_thick" value="0.15*cm"/>
   <Constant name="PRESH_ENCA_GAP" value="0.20*cm"/>
   
-  <!-- Thicknesses of the various preshower layers -->
   <Constant name="P1" value="4.*cm"/> <!-- neutron moderator-->
   <Constant name="P2" value="1.*cm"/> <!-- foam / active cooling, sim. as air-->
   <Constant name="P3" value=".1*cm"/> <!-- first cooling - aluminium  -->
@@ -46,28 +46,359 @@
   <Constant name="P22" value="1.37*cm - [P17]"/><!-- air gap for cables -->
   <Constant name="P23" value="1.*cm"/><!-- foam / active cooling / sim. as air -->
   <Constant name="P24" value="4.*cm"/><!-- neutron moderator -->
-<!-- -->  
-  <!-- Overall thickness of the preshower, sum over layers  -->
+
   <Constant name="PRESH_Z_TOTAL" value="[P1]+[P2]+[P3]+[P4]+[P5]+[P6]+[P7]+[P8]
                      +[P9]+[P10]+[P11]+[P12]+[P13]+[P14]+[P15]+[P16]
                      +[P17]+[P18]+[P19]+[P20]+[P21]+[P22]+[P23]+[P24]"/>
-  
-  <!-- a vector of layer thicknesses; simply for convenience -->
-  <Vector name="Layers" nEntries="24">
-      [P1],[P2],[P3],[P4],[P5],[P6],[P7],[P8],
-      [P9],[P10],[P11],[P12],[P13],[P14],[P15],
-      [P16],[P17],[P18],[P19],[P20],[P21], [P22],[P23],[P24]
-  </Vector>
 
-  <!-- some position information -->
+ <!-- some position information -->
   <Constant name="zfoam1" value="-[PRESH_Z_TOTAL]/2 + [P1] + [P2]/2"/>
   <Constant name="zlead1" value="[zfoam1]+ [P2]/2 +[P3]+[P4]+[P5]+[P6]+[P7]+
                                  [P8]+ [P9]"/>
   <Constant name="zlead2" value="[zlead1]+[P10]+[P11]+[P12]+[P13]+[P14]+[P15]+[P16]+[P17]+[P18]+[P19]"/> 
   <Constant name="zfoam2" value="[zlead2]+[P20]+[P21]+[P22]+[P23]/2"/>
 
-  <!-- a vector of inner radii of the presh-layers -->
-  <Vector name="R_MAX" nEntries="24">
+
+  <!-- derived constants -->
+  <Constant name="THETA_MIN" value="2*atan(exp(-[PRE_ETA_MIN]))"/>
+  <Constant name="THETA_MAX" value="2*atan(exp(-[PRE_ETA_MAX]))"/>
+  <Constant name="R_MIN" value="[ECAL_Z]*tan([THETA_MIN])"/>
+  <Constant name="R_MAX" value="[PRESH_Z]*tan([THETA_MAX]) - 8*cm"/>
+  <Constant name="wedge_angle" 
+            value=" atan((([wedge_back_thick]-[wedge_front_thick])/2)/[wedge_length])" />
+  <Constant name="waf_active" value="[waf_width]-[waf_overlap]" />
+  <Constant name="wedge_sep" value="[waf_active]*cos([wedge_angle])" />
+  <Constant name="wedge_gap" value="[wedge_sep]-[wedge_length]" />
+  <Constant name="wedge_offset" value=" ([wedge_front_thick]+[wedge_back_thick])/4." />
+  <Constant name="ceramic_width" value="[waf_width]" />
+  <Constant name="ywedge_ceramic_diff" value="([ceramic_length]/2.)*cos([wedge_angle]*2.) -[wedge_length]/2." />
+  <Constant name="elec_width" value="[waf_width]" />
+  <Constant name="elec_length" value="[ceramic_length] - [waf_width]" />
+  <Constant name="box_thick" value="[elec_thick] + [ceramic_thick]" />
+  <Constant name="zwedge_ceramic_diff" value="([box_thick]/2)/cos([wedge_angle]*2) + [wedge_front_thick]+ ([ceramic_length]/2.) *sin([wedge_angle]*2)" />
+  <Constant name="angle" value="2*[wedge_angle]" />
+
+
+
+</ConstantsSection>
+
+<SolidSection label="es.xml">
+    <Polycone name="SF" startPhi="0" deltaPhi="360*deg">
+        <!-- Confusion: [R_MAX] ... radius corresponding to the larger eta-value
+                                -> corresponds to the innter radius of the polycone-->
+	<ZSection z="-[PRESH_Z_TOTAL]/2."
+                  rMax="130*cm" 
+                  rMin="[R_MAX]"/>
+	<ZSection z="1.8*cm" 
+                  rMax="[R_MIN]+9*cm" 
+                  rMin="[R_MAX]"/>
+	<ZSection z="+[PRESH_Z_TOTAL]/2." 
+                  rMax="[R_MIN]+9*cm" 
+                  rMin="[R_MAX]"/>
+     </Polycone>
+ <Tubs name="SFC7" rMin="1.23481*m" rMax="1.30481*m" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="SFC8" rMin="1.29981*m" rMax="1.30481*m" dz="4.25*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="SFC9" rMin="1.29981*m" rMax="1.33481*m" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="SFJ1" rMin="1.2*m" rMax="1.24981*m" dz="4.65*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="SFJ2" rMin="35.7248*cm" rMax="45.7*cm" dz="4.65*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="SFJ3" rMin="1.2*m" rMax="1.24981*m" dz="1.85*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="SFJ4" rMin="35.7248*cm" rMax="45.7*cm" dz="1.85*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="SFC1" rMin="1.25081*m" rMax="1.28081*m" dz="6*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="SFC2" rMin="1.25181*m" rMax="1.27981*m" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Trapezoid name="SWED" 
+               dz="[wedge_length]/2"
+               theta="-[wedge_angle]"
+               phi="0"
+               h1="[wedge_width]/2"
+               bl1="[wedge_back_thick]/2"
+               tl1="[wedge_back_thick]/2"
+               alp1="0"
+               h2="[wedge_width]/2"
+               bl2="[wedge_front_thick]/2"
+               tl2="[wedge_front_thick]/2"
+               alp2="0" />
+
+    <Box name="SFBX" dx="[waf_width]/2"  
+                     dy="[ceramic_length]/2" 
+                     dz="[box_thick]/2"/>
+    <Box name="SFWX" dx="[waf_width]/2" dy="[waf_width]/2" dz="[waf_thick]/2"/>
+    <Box name="SFAX" dx="[waf_active]/2" 
+                     dy="[waf_active]/2" dz="[waf_thick]/2"/>
+    <Box name="SFSX" dx="[waf_active]/64" dy="[waf_active]/2" dz="[waf_thick]/2"/>
+    <Box name="SFCX" dx="[ceramic_width]/2" 
+                     dy="[ceramic_length]/2" 
+                     dz="[ceramic_thick]/2"/>
+    <Box name="SFEX" dx="[elec_width]/2" 
+                     dy="[elec_length]/2" 
+                     dz="[elec_thick]/2"/>
+    <Box name="SFBY" dy="[waf_width]/2"  
+                     dx="[ceramic_length]/2" 
+                     dz="[box_thick]/2"/>
+    <Box name="SFWY" dx="[waf_width]/2" dy="[waf_width]/2" dz="[waf_thick]/2"/>
+    <Box name="SFAY" dx="[waf_active]/2" dy="[waf_active]/2" dz="[waf_thick]/2"/>
+    <Box name="SFSY" dx="[waf_active]/2" dy="[waf_active]/64" dz="[waf_thick]/2"/>
+    <Box name="SFCY" dy="[ceramic_width]/2" 
+                     dx="[ceramic_length]/2" 
+                     dz="[ceramic_thick]/2"/>
+    <Box name="SFEY" dx="[elec_length]/2" 
+		     dy="[elec_width]/2"
+                     dz="[elec_thick]/2"/>
+</SolidSection>
+
+<LogicalPartSection label="es.xml">
+ <LogicalPart name="SF" category="unspecified">
+  <rSolid name="SF"/>
+  <rMaterial name="materials:E_Air"/>
+ </LogicalPart>
+
+ <LogicalPart name="SFSX" category="unspecified">
+  <rSolid name="SFSX"/>
+  <rMaterial name="materials:E_Silicon"/>
+ </LogicalPart>
+
+ <LogicalPart name="SFSY" category="unspecified">
+  <rSolid name="SFSY"/>
+  <rMaterial name="materials:E_Silicon"/>
+ </LogicalPart>
+
+  <!-- Aluminium wedge -->
+  <LogicalPart name="SWED" category="unspecified">
+   <rSolid name="SWED"/>
+     <rMaterial name="materials:E_Aluminium"/>
+  </LogicalPart>
+
+  <!-- X Layer of the Preshower -->
+  <!-- silicon/ceramics/electronics bounding box-->
+  <LogicalPart name="SFBX" category="unspecified">
+   <rSolid name="SFBX"/>
+    <rMaterial name="materials:E_Air"/>
+  </LogicalPart>
+
+  <!-- silicon wafer -->
+  <LogicalPart name="SFWX" category="unspecified">
+   <rSolid name="SFWX"/>
+    <rMaterial name="materials:E_Silicon"/>
+  </LogicalPart>
+
+  <!-- active silicon area -->
+  <LogicalPart name="SFAX" category="unspecified">
+   <rSolid name="SFAX"/>
+    <rMaterial name="materials:E_Silicon"/>
+  </LogicalPart>
+ 
+  <!-- ceramic -->
+  <LogicalPart name="SFCX" category="unspecified">
+   <rSolid name="SFCX"/>
+    <rMaterial name="materials:E_G10"/>
+  </LogicalPart>
+
+  <!-- electronics box -->
+  <LogicalPart name="SFEX" category="unspecified">
+   <rSolid name="SFEX"/>
+    <rMaterial name="materials:E_G10"/>
+  </LogicalPart>
+
+  <!-- Same again, for the Y layer;
+       in principle these are the same parts as defined for the X layer,
+       except: length <-> width  --> 
+  <!-- silicon/ceramics/electronics bounding box-->
+  <LogicalPart name="SFBY" category="unspecified">
+   <rSolid name="SFBY"/>
+    <rMaterial name="materials:E_Air"/>
+  </LogicalPart>
+
+  <!-- silicon wafer -->
+  <LogicalPart name="SFWY" category="unspecified">
+   <rSolid name="SFWY"/>
+    <rMaterial name="materials:E_Silicon"/>
+  </LogicalPart>
+
+  <!-- active silicon area -->
+  <LogicalPart name="SFAY" category="unspecified">
+   <rSolid name="SFAY"/>
+    <rMaterial name="materials:E_Silicon"/>
+  </LogicalPart>
+ 
+  <!-- ceramic -->
+  <LogicalPart name="SFCY" category="unspecified">
+   <rSolid name="SFCY"/>
+    <rMaterial name="materials:E_G10"/>
+  </LogicalPart>
+
+  <!-- electronics box -->
+  <LogicalPart name="SFEY" category="unspecified">
+   <rSolid name="SFEY"/>
+    <rMaterial name="materials:E_G10"/>
+  </LogicalPart>
+
+
+<!-- LogicalPartSection label="Support Structures" -->
+
+ <LogicalPart name="SFC7" category="unspecified">
+  <rSolid name="SFC7"/>
+  <rMaterial name="materials:E_Aluminium"/>
+ </LogicalPart>
+ <LogicalPart name="SFC8" category="unspecified">
+  <rSolid name="SFC8"/>
+  <rMaterial name="materials:E_Aluminium"/>
+ </LogicalPart>
+ <LogicalPart name="SFC9" category="unspecified">
+  <rSolid name="SFC9"/>
+  <rMaterial name="materials:E_Aluminium"/>
+ </LogicalPart>
+ <LogicalPart name="SFJ1" category="unspecified">
+  <rSolid name="SFJ1"/>
+  <rMaterial name="materials:E_Aluminium"/>
+ </LogicalPart>
+ <LogicalPart name="SFJ2" category="unspecified">
+  <rSolid name="SFJ2"/>
+  <rMaterial name="materials:E_Aluminium"/>
+ </LogicalPart>
+ <LogicalPart name="SFJ3" category="unspecified">
+  <rSolid name="SFJ3"/>
+  <rMaterial name="materials:E_Aluminium"/>
+ </LogicalPart>
+ <LogicalPart name="SFJ4" category="unspecified">
+  <rSolid name="SFJ4"/>
+  <rMaterial name="materials:E_Aluminium"/>
+ </LogicalPart>
+ <LogicalPart name="SFC1" category="unspecified">
+  <rSolid name="SFC1"/>
+  <rMaterial name="materials:E_Iron"/>
+ </LogicalPart>
+ <LogicalPart name="SFC2" category="unspecified">
+  <rSolid name="SFC2"/>
+  <rMaterial name="materials:E_Water"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="es.xml">
+ <PosPart copyNumber="1">
+   <rParent name="ereg:EREG"/>
+   <rChild name="presh:SF"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm" y="0*fm" z="3.0495*m" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="presh:SF"/>
+   <rChild name="presh:SFC1"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm" y="0*fm" z="-3.085*cm" />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="presh:SF"/>
+   <rChild name="presh:SFC1"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm" y="0*fm" z="1.165*cm" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="presh:SFC1"/>
+   <rChild name="presh:SFC2"/>
+  <rRotation name="rotations:000D"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="presh:SF"/>
+   <rChild name="presh:SFC7"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm" y="0*fm" z="-4.75*cm" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="presh:SF"/>
+   <rChild name="presh:SFC8"/>
+  <rRotation name="rotations:000D"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="presh:SF"/>
+   <rChild name="presh:SFC9"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm" y="0*fm" z="4.75*cm" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="presh:SF"/>
+   <rChild name="presh:SFJ1"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm" y="0*fm" z="-3.085*cm" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="presh:SF"/>
+   <rChild name="presh:SFJ2"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm" y="0*fm" z="-3.085*cm" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="presh:SF"/>
+   <rChild name="presh:SFJ3"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm" y="0*fm" z="1.165*cm" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="presh:SF"/>
+   <rChild name="presh:SFJ4"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm" y="0*fm" z="1.165*cm" />
+ </PosPart>
+
+ <PosPart copyNumber="1">
+   <rParent name="presh:SFBX"/>
+   <rChild name="presh:SFCX"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm" y="0*fm" z="-750*mum" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="presh:SFBX"/>
+   <rChild name="presh:SFWX"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm" y="-1.85*cm" z="-300*mum" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="presh:SFWX"/>
+   <rChild name="presh:SFAX"/>
+  <rRotation name="rotations:000D"/>
+ </PosPart>
+
+ <PosPart copyNumber="1">
+   <rParent name="presh:SFBY"/>
+   <rChild name="presh:SFCY"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm" y="0*fm" z="-750*mum" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="presh:SFBY"/>
+   <rChild name="presh:SFWY"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="-1.85*cm" y="0*fm" z="-300*mum" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="presh:SFWY"/>
+   <rChild name="presh:SFAY"/>
+  <rRotation name="rotations:000D"/>
+ </PosPart>
+
+</PosPartSection>
+
+
+ <Algorithm name="Preshower">
+    <rParent name="presh:SF"/>
+
+    <Vector name="IQUAD_MAX" type="numeric" nEntries="20">
+      5,7,10,11,13,13,14,15,16,17,17,17,18,19,19,19,19,19,19,19
+    </Vector>
+    <Vector name="IQUAD_MIN" type="numeric" nEntries="20">
+       1,1,1,1,1,1,1,1,1,1,1,1,1,4,4,6,6,8,8,8
+    </Vector>
+
+  <Numeric name="waf_intra_col_sep" value="[waf_intra_col_sep]"/>
+  <Numeric name="waf_inter_col_sep" value="[waf_inter_col_sep]"/>
+  <Numeric name="wedge_length" value="[wedge_length]"/>
+  <Numeric name="PRESH_Z_TOTAL" value="[PRESH_Z_TOTAL]"/>
+  
+  <Numeric name="waf_active" value="[waf_active]" />
+  <Numeric name="wedge_offset" value="[wedge_offset]" />
+  <Numeric name="ywedge_ceramic_diff" value="[ywedge_ceramic_diff]" />
+  <Numeric name="zwedge_ceramic_diff" value="[zwedge_ceramic_diff]" />
+
+   <!-- a vector of inner radii of the presh-layers -->
+  <Vector name="R_MAX" type="numeric" nEntries="24">
       [R_MAX], <!--  1 -->
       [R_MAX], <!--  2 -->
       [R_MAX], <!--  3 -->
@@ -95,7 +426,7 @@
   </Vector>
  
   <!-- a vector of inner radii of the presh-layers -->
-  <Vector name="R_MIN" nEntries="24">
+  <Vector name="R_MIN" type="numeric" nEntries="24">
       [R_MIN], <!--  1 -->
       [R_MIN]-1.5*cm, <!--  2 -->
       [R_MIN], <!--  3 -->
@@ -121,345 +452,26 @@
       [R_MIN]+5*cm, <!-- 23 -->
       [R_MIN]+5*cm  <!-- 24 -->
   </Vector>
- 
-  <!-- derived constants -->
-  <Constant name="THETA_MIN" value="2*atan(exp(-[PRE_ETA_MIN]))"/>
-  <Constant name="THETA_MAX" value="2*atan(exp(-[PRE_ETA_MAX]))"/>
-  <Constant name="R_MIN" value="[ECAL_Z]*tan([THETA_MIN])"/>
-  <Constant name="R_MAX" value="[PRESH_Z]*tan([THETA_MAX]) - 8*cm"/>
-  <Constant name="wedge_angle" 
-            value=" atan((([wedge_back_thick]-[wedge_front_thick])/2)/[wedge_length])" />
-  <Constant name="waf_active" value="[waf_width]-[waf_overlap]" />
-  <Constant name="wedge_sep" value="[waf_active]*cos([wedge_angle])" />
-  <Constant name="wedge_gap" value="[wedge_sep]-[wedge_length]" />
-  <Constant name="wedge_offset" value=" ([wedge_front_thick]+[wedge_back_thick])/4." />
-  <Constant name="ceramic_width" value="[waf_width]" />
-  <Constant name="ywedge_ceramic_diff" value="([ceramic_length]/2.)*cos([wedge_angle]*2.) -[wedge_length]/2." />
-  <Constant name="elec_width" value="[waf_width]" />
-  <Constant name="elec_length" value="[ceramic_length] - [waf_width]" />
-  <Constant name="box_thick" value="[elec_thick] + [ceramic_thick]" />
-  <Constant name="zwedge_ceramic_diff" value="([box_thick]/2)/cos([wedge_angle]*2) + [wedge_front_thick]+ ([ceramic_length]/2.) *sin([wedge_angle]*2)" />
-  <Constant name="angle" value="2*[wedge_angle]" />
 
-</ConstantsSection>
-
-<RotationSection label="presh">
-  <Rotation name="MROT_1001" thetaX="0" phiX="0"
-                                   thetaY="90*deg" phiY="180*deg"
-                                   thetaZ="270*deg" phiZ="90*deg" />
-
-  <Rotation name="MROT_2001" thetaX="0" phiX="0"
-                                   thetaY="90*deg" phiY="0"
-                                   thetaZ="270*deg" phiZ="270*deg" />
-
-  <Rotation name="MROT_1003" thetaX="0" phiX="0"
-                                   thetaY="90*deg" phiY="90*deg"
-                                   thetaZ="270*deg" phiZ="0" />
-
-  <Rotation name="MROT_2003" thetaX="0" phiX="0"
-                                   thetaY="90*deg" phiY="270*deg"
-                                   thetaZ="270*deg" phiZ="180*deg" />
-
-  <Rotation name="MROT_1000" thetaX="90*deg" phiX="0"
-                                   thetaY="90*deg-[angle]" phiY="90*deg"
-                                   thetaZ="[angle]" phiZ="270*deg" />
-
-  <Rotation name="MROT_2000" thetaX="90*deg" phiX="180*deg"
-                                   thetaY="90*deg-[angle]" phiY="270*deg"
-                                   thetaZ="[angle]" phiZ="90*deg" />
-
-  <Rotation name="MROT_1002" thetaX="90*deg-[angle]" phiX="0"
-                                   thetaY="90*deg" phiY="90*deg"
-                                   thetaZ="360*deg-[angle]" phiZ="0" />
-
-  <Rotation name="MROT_2002" thetaX="90*deg-[angle]" phiX="180*deg"
-                                   thetaY="90*deg" phiY="270*deg"
-                                   thetaZ="[angle]" phiZ="0" />
- 
-</RotationSection>
-
-<LogicalPartSection label="preshower">
-  <LogicalPart name="World">
-     <Box name="World" 
-          dx="2*[PRESH_Z_TOTAL]" 
-          dz="2*[PRESH_Z_TOTAL]" 
-          dy="2*[PRESH_Z_TOTAL]"/>
-    <rMaterial name="materials:Air"/>
-  </LogicalPart>
-  <LogicalPart name="SF">
-     <Polycone name="SF" startPhi="0" deltaPhi="360*deg">
-        <!-- Confusion: [R_MAX] ... radius corresponding to the larger eta-value
-                                -> corresponds to the innter radius of the polycone-->
-	<ZSection z="-[PRESH_Z_TOTAL]/2."
-                  rMax="130*cm" 
-                  rMin="[R_MAX]"/>
-	<ZSection z="1.8*cm" 
-                  rMax="[R_MIN]+9*cm" 
-                  rMin="[R_MAX]"/>
-	<ZSection z="+[PRESH_Z_TOTAL]/2." 
-                  rMax="[R_MIN]+9*cm" 
-                  rMin="[R_MAX]"/>
-     </Polycone>
-     <rMaterial name="materials:Air"/>
-  </LogicalPart>
-</LogicalPartSection>
-
-<LogicalPartSection label="detectors">	
-  <!-- Aluminium wedge -->
-  <LogicalPart name="SWED">
-    <Trapezoid name="SWED" 
-               dz="[wedge_length]/2"
-               theta="-[wedge_angle]"
-               phi="0"
-               h1="[wedge_width]/2"
-               bl1="[wedge_back_thick]/2"
-               tl1="[wedge_back_thick]/2"
-               alp1="0"
-               h2="[wedge_width]/2"
-               bl2="[wedge_front_thick]/2"
-               tl2="[wedge_front_thick]/2"
-               alp2="0" />
-     <rMaterial name="materials:E_Aluminium"/>
-  </LogicalPart>
-
-  <!-- X Layer of the Preshower -->
-  <!-- silicon/ceramics/electronics bounding box-->
-  <LogicalPart name="SFBX">
-    <Box name="SFBX" dx="[waf_width]/2"  
-                     dy="[ceramic_length]/2" 
-                     dz="[box_thick]/2"/>
-    <rMaterial name="materials:Air"/>
-  </LogicalPart>
-
-  <!-- silicon wafer -->
-  <LogicalPart name="SFWX">
-    <Box name="SFWX" dx="[waf_width]/2" dy="[waf_width]/2" dz="[waf_thick]/2"/>
-    <rMaterial name="materials:Silicon"/>
-  </LogicalPart>
-
-  <!-- active silicon area -->
-  <LogicalPart name="SFAX">
-    <Box name="SFAX" dx="[waf_active]/2" 
-                     dy="[waf_active]/2" dz="[waf_thick]/2"/>
-    <rMaterial name="materials:Silicon"/>
-  </LogicalPart>
- 
-  <!-- ceramic -->
-  <LogicalPart name="SFCX">
-    <Box name="SFCX" dx="[ceramic_width]/2" 
-                     dy="[ceramic_length]/2" 
-                     dz="[ceramic_thick]/2"/>
-    <rMaterial name="materials:G10"/>
-  </LogicalPart>
-
-  <!-- electronics box -->
-  <LogicalPart name="SFEX">
-    <Box name="SFEX" dx="[elec_width]/2" 
-                     dy="[elec_length]/2" 
-                     dz="[elec_thick]/2"/>
-    <rMaterial name="materials:G10"/>
-  </LogicalPart>
-
-  <!-- Same again, for the Y layer;
-       in principle these are the same parts as defined for the X layer,
-       except: length <-> width  --> 
-  <!-- silicon/ceramics/electronics bounding box-->
-  <LogicalPart name="SFBY">
-    <Box name="SFBY" dy="[waf_width]/2"  
-                     dx="[ceramic_length]/2" 
-                     dz="[box_thick]/2"/>
-    <rMaterial name="materials:Air"/>
-  </LogicalPart>
-
-  <!-- silicon wafer -->
-  <LogicalPart name="SFWY">
-    <Box name="SFWY" dx="[waf_width]/2" dy="[waf_width]/2" dz="[waf_thick]/2"/>
-    <rMaterial name="materials:Silicon"/>
-  </LogicalPart>
-
-  <!-- active silicon area -->
-  <LogicalPart name="SFAY">
-    <Box name="SFAY" dx="[waf_active]/2" dy="[waf_active]/2" dz="[waf_thick]/2"/>
-    <rMaterial name="materials:Silicon"/>
-  </LogicalPart>
- 
-  <!-- ceramic -->
-  <LogicalPart name="SFCY">
-    <Box name="SFCY" dy="[ceramic_width]/2" 
-                     dx="[ceramic_length]/2" 
-                     dz="[ceramic_thick]/2"/>
-    <rMaterial name="materials:Air"/>
-  </LogicalPart>
-
-  <!-- electronics box -->
-  <LogicalPart name="SFEY">
-    <Box name="SFEY" dy="[elec_width]/2" 
-                     dx="[elec_length]/2" 
-                     dz="[elec_thick]/2"/>
-    <rMaterial name="materials:G10"/>
-  </LogicalPart>
+  <!-- a vector of layer thicknesses; simply for convenience -->
+  <Vector name="Layers" type="numeric" nEntries="24">
+      [P1],[P2],[P3],[P4],[P5],[P6],[P7],[P8],
+      [P9],[P10],[P11],[P12],[P13],[P14],[P15],
+      [P16],[P17],[P18],[P19],[P20],[P21],[P22],[P23],[P24]
+  </Vector>
 
 
-</LogicalPartSection>
+  <Vector name="LayMat" type="string" nEntries="24">
+     E_Polythene, E_Air, E_Aluminium,
+     E_Water, E_Aluminium, E_Aluminium,
+     E_Lead, E_Aluminium, E_Aluminium,
+     E_Air, E_Aluminium, E_Air, 
+     E_Aluminium, E_Water, E_Aluminium, 
+     E_Aluminium, E_Lead, E_Aluminium, 
+     E_Aluminium, E_Air, E_Aluminium,  
+     E_Air, E_Air, E_Polythene  
+</Vector>
 
-<LogicalPartSection label="Support Structures">
- <LogicalPart name="SFC7">
-   <Tubs name="SFC7" rMin="[R_MIN]-1.5*cm" rMax="[R_MIN]+5.5*cm" dz="0.5*cm" startPhi="0" deltaPhi="360*deg"/>
-   <rMaterial name="materials:Gold"/>
- </LogicalPart>
- <LogicalPart name="SFC8">
-   <Tubs name="SFC8" rMin="[R_MIN]+(5.5-0.5)*cm" rMax="[R_MIN]+5.5*cm" 
-                     dz="([zfoam2]-[zfoam1]-1*cm)/2" startPhi="0" deltaPhi="360*deg"/>
-   <rMaterial name="materials:Gold"/>
- </LogicalPart>
- <LogicalPart name="SFC9">
-   <Tubs name="SFC9" rMin="[R_MIN]+(5.5-0.5)*cm" rMax="[R_MIN]+(5.5-0.5+3.5)*cm" 
-                     dz="0.5*cm" startPhi="0" deltaPhi="360*deg"/>
-   <rMaterial name="materials:Gold"/>
- </LogicalPart>
+    </Algorithm>
 
- <LogicalPart name="SFJ1">
-   <Tubs name="SFJ1" rMin="120*cm" rMax="[R_MIN]" dz="[P7]/2" startPhi="0" deltaPhi="360*deg"/>
-   <rMaterial name="materials:Lead"/>
- </LogicalPart>
- <LogicalPart name="SFJ2">
-   <Tubs name="SFJ2" rMin="[R_MAX]" rMax="45.7*cm" dz="[P7]/2" startPhi="0" deltaPhi="360*deg"/>
-   <rMaterial name="materials:Lead"/>
- </LogicalPart>
-  <LogicalPart name="SFJ3">
-   <Tubs name="SFJ3" rMin="120*cm" rMax="[R_MIN]" dz="[P17]/2" startPhi="0" deltaPhi="360*deg"/>
-   <rMaterial name="materials:Lead"/>
- </LogicalPart>
-  <LogicalPart name="SFJ4">
-   <Tubs name="SFJ3" rMin="[R_MAX]" rMax="45.7*cm" dz="[P17]/2" startPhi="0" deltaPhi="360*deg"/>
-   <rMaterial name="materials:Lead"/>
- </LogicalPart>
-
- <LogicalPart name="SFC1">
-   <Tubs name="SFC1" rMin="[R_MIN]+0.1*cm" rMax="[R_MIN]+3.1*cm" dz="0.6*cm" startPhi="0" deltaPhi="360*deg"/>
-   <rMaterial name="materials:Lead"/>
- </LogicalPart>
- <LogicalPart name="SFC2">
-   <Tubs name="SFC2" rMin="[R_MIN]+0.2*cm" rMax="[R_MIN]+3*cm" dz="0.5*cm" startPhi="0" deltaPhi="360*deg"/>
-   <rMaterial name="materials:Lead"/>
- </LogicalPart>
-
-</LogicalPartSection>
-
-
-<PosPartSection label="support structures">
-  <PosPart copyNumber="1">
-    <rParent name="SF"/>
-    <rChild name="SFC7"/>
-    <Translation x="0" y="0" z="[zfoam1]"/>
-  </PosPart>
-  <PosPart copyNumber="1">
-    <rParent name="SF"/>
-    <rChild name="SFC8"/>
-    <Translation x="0" y="0" z="[zfoam1]+([zfoam2]-[zfoam1])/2"/>
-  </PosPart>
-  <PosPart copyNumber="1">
-    <rParent name="SF"/>
-    <rChild name="SFC9"/>
-    <Translation x="0" y="0" z="[zfoam2]"/>
-  </PosPart>
-  
-  <PosPart copyNumber="1">
-    <rParent name="SF"/>
-    <rChild name="SFJ1"/>
-    <Translation x="0" y="0" z="[zlead1]-[P7]/2-0.4*cm"/>
-  </PosPart>
-  <PosPart copyNumber="1">
-    <rParent name="SF"/>
-    <rChild name="SFJ2"/>
-    <Translation x="0" y="0" z="[zlead1]-[P7]/2-0.4*cm"/>
-  </PosPart>
-  <PosPart copyNumber="1">
-    <rParent name="SF"/>
-    <rChild name="SFJ3"/>
-    <Translation x="0" y="0" z="[zlead2]-[P17]/2-0.4*cm"/>
-  </PosPart>
-   <PosPart copyNumber="1">
-    <rParent name="SF"/>
-    <rChild name="SFJ4"/>
-    <Translation x="0" y="0" z="[zlead2]-[P17]/2-0.4*cm"/>
-  </PosPart>
-
-   <PosPart copyNumber="1">
-    <rParent name="SF"/>
-    <rChild name="SFC1"/>
-    <Translation x="0" y="0" z="0"/>
-  </PosPart>
-   <PosPart copyNumber="1">
-    <rParent name="SF"/>
-    <rChild name="SFC2"/>
-    <Translation x="0" y="0" z="[zlead1]-[P7]/2-0.4*cm"/>
-  </PosPart>
-   <PosPart copyNumber="2">
-    <rParent name="SF"/>
-    <rChild name="SFJ4"/>
-    <Translation x="0" y="0" z="[zlead2]-[P17]/2-0.4*cm"/>
-  </PosPart>
-
-</PosPartSection>
-
-<PosPartSection label="preshower">
-
-  <PosPart copyNumber="1">
-    <rParent name="World"/>
-    <rChild name="SF"/>
-  </PosPart>
-  <PosPart copyNumber="1">
-    <rParent name="SFBX"/>
-    <rChild name="SFCX"/>
-    <Translation x="0" y="0" z="-0.075*cm"/>
-  </PosPart>
-  <PosPart copyNumber="1">
-    <rParent name="SFBX"/>
-    <rChild name="SFWX"/>
-    <Translation x="0" y="-1.85*cm" z="-0.03*cm"/>
-  </PosPart>
-  <PosPart copyNumber="1">
-    <rParent name="SFBX"/>
-    <rChild name="SFEX"/>
-    <Translation x="0" y="3.15*cm" z="0.03*cm"/>
-  </PosPart>
-  <PosPart copyNumber="1">
-    <rParent name="SFWX"/>
-    <rChild name="SFAX"/>
-  </PosPart>
-
-  <!-- put the ceramics, electorincs, silicon together -->
-  <!-- Y Layer -->
-  <PosPart copyNumber="1">
-    <rParent name="SFBY"/>
-    <rChild name="SFCY"/>
-    <Translation x="0" y="0" z="-0.075*cm"/>
-  </PosPart>
-  <PosPart copyNumber="1">
-    <rParent name="SFBY"/>
-    <rChild name="SFWY"/>
-    <Translation y="0" x="-1.85*cm" z="-0.03*cm"/>
-  </PosPart>
-  <PosPart copyNumber="1">
-    <rParent name="SFBY"/>
-    <rChild name="SFEY"/>
-    <Translation y="0" x="3.15*cm" z="0.03*cm"/>
-  </PosPart>
-  <PosPart copyNumber="1">
-    <rParent name="SFWY"/>
-    <rChild name="SFAY"/>
-  </PosPart>
-
-  <Algorithm name="Preshower">
-    <rParent name="SF"/>
-    <Vector name="IQUAD_MAX" nEntries="20">
-      5,7,10,11,13,13,14,15,16,17,17,17,18,19,19,19,19,19,19,19
-    </Vector>
-    <Vector name="IQUAD_MIN" nEntries="20">
-       1,1,1,1,1,1,1,1,1,1,1,1,1,4,4,6,6,8,8,8
-    </Vector>
-  </Algorithm>
-
-</PosPartSection>
 </DDDefinition>
