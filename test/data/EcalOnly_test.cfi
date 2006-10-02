@@ -1,0 +1,14 @@
+es_source = XMLIdealGeometryESSource
+{
+   vstring geomXMLFiles = {
+   "Geometry/CMSCommonData/data/materials.xml", 
+   "Geometry/CMSCommonData/data/rotations.xml", 
+   "Geometry/EcalCommonData/data/ecal_test.xml",     
+   "Geometry/CMSCommonData/data/cms.xml",       
+   "Geometry/EcalSimData/data/ecalsens.xml",    
+   "Geometry/HcalSimData/data/CaloUtil.xml",    
+   "Geometry/EcalSimData/data/EcalProdCuts.xml"
+   }
+
+   string rootNodeName = "cms:OCMS"
+}
