@@ -7,7 +7,8 @@ es_source = XMLIdealGeometryESSource
    "Geometry/CMSCommonData/data/cms.xml",       
    "Geometry/EcalSimData/data/ecalsens.xml",    
    "Geometry/HcalSimData/data/CaloUtil.xml",    
-   "Geometry/EcalSimData/data/EcalProdCuts.xml"
+   "Geometry/EcalSimData/data/EcalProdCuts.xml",
+   "Geometry/CMSCommonData/data/FieldParameters.xml"
    }
 
    string rootNodeName = "cms:OCMS"
