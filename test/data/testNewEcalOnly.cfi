@@ -7,6 +7,9 @@ es_source = XMLIdealGeometryESSource
    "Geometry/EcalCommonData/data/ebalgo.xml",     
    "Geometry/EcalCommonData/data/esalgo.xml",     
    "Geometry/CMSCommonData/data/cms.xml",       
+   "Geometry/CMSCommonData/data/cmsMother.xml",       
+   "Geometry/CMSCommonData/data/caloBase.xml",       
+   "Geometry/CMSCommonData/data/cmsCalo.xml",       
    "Geometry/EcalSimData/data/ecalsens.xml",    
    "Geometry/HcalSimData/data/CaloUtil.xml",    
    "Geometry/EcalSimData/data/EcalProdCuts.xml"
