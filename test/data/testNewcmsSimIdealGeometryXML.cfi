@@ -184,6 +184,7 @@ es_source = XMLIdealGeometryESSource
              "Geometry/TrackerCommonData/data/tracker.xml",
              "Geometry/EcalCommonData/data/eregalgo.xml",
              "Geometry/EcalCommonData/data/ebalgo.xml",
+             "Geometry/EcalCommonData/data/eealgo.xml",
              "Geometry/EcalCommonData/data/esalgo.xml", 
              "Geometry/HcalCommonData/data/hcalrotations.xml",
              "Geometry/HcalCommonData/data/hcalalgo.xml",
