@@ -12,6 +12,7 @@ es_source = XMLIdealGeometryESSource
    "Geometry/EcalCommonData/data/ebcon.xml",
    "Geometry/EcalCommonData/data/ebrot.xml",
    "Geometry/EcalCommonData/test/data/eecon.xml",
+   "Geometry/EcalCommonData/test/data/eehier.xml",
    "Geometry/EcalCommonData/test/data/eefixed.xml",
    "Geometry/EcalCommonData/test/data/eealgo.xml",
 #   "Geometry/EcalCommonData/data/ee.xml",
